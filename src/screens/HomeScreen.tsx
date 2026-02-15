@@ -1,5 +1,5 @@
 import React from 'react';
-import {View,Text,StyleSheet}from 'react-native'
+import {View,Text,StyleSheet,Alert}from 'react-native'
 import { Button } from 'react-native';
 import { launchCamera } from 'react-native-image-picker';
 import FaceDetection from '@react-native-ml-kit/face-detection';
@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 const HomePage=()=>{
 const [image,setImage]=useState<string|null>(null)
-const [count,setCount]=useState<number>(0)
+const [facecount,setfaceCount]=useState<number>(0)
     const start_camera =()=>{
        launchCamera({
         'mediaType':'photo',
@@ -21,8 +21,24 @@ const [count,setCount]=useState<number>(0)
         }
         const imageuri = response.assets[0].uri!;
         setImage(imageuri)
+        Facedetect(imageuri);
 
         })
+    }
+    const Facedetect = async (image:string)=>{
+        const count = await FaceDetection.detect(image);
+       const facecount = count.length;
+        setfaceCount(facecount);
+        if (facecount === 0) {
+            Alert.alert("No Face Detected");
+        } 
+        else if (facecount > 1) {
+                Alert.alert("Multiple Faces Detected");
+        }   
+        else {
+        Alert.alert("One Face Detected");
+    }
+
     }
     return(
         <View style={styles.container}>
