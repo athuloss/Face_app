@@ -1,69 +1,103 @@
-import React from 'react';
-import {View,Text,StyleSheet,Alert}from 'react-native'
-import { Button } from 'react-native';
-import { launchCamera } from 'react-native-image-picker';
+import React, {useEffect, useRef, useState} from 'react';
+import {View, Text, StyleSheet} from 'react-native';
+import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import FaceDetection from '@react-native-ml-kit/face-detection';
-import { useState } from 'react';
 
+const HomePage = () => {
+  const device = useCameraDevice('front');
+  const cameraRef = useRef<Camera>(null);
 
+  const [hasPermission, setHasPermission] = useState(false);
+  const [faceCount, setFaceCount] = useState(0);
 
-const HomePage=()=>{
-const [image,setImage]=useState<string|null>(null)
-const [facecount,setfaceCount]=useState<number>(0)
-    const start_camera =()=>{
-       launchCamera({
-        'mediaType':'photo',
-        cameraType:'front',
-       },
-     async (response)=>{
-        if(response.didCancel || !response.assets){
-            return;
+  // 🔴 Ask Camera Permission
+  useEffect(() => {
+    (async () => {
+      const status = await Camera.requestCameraPermission();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  // 🔴 Live Detection Loop
+  useEffect(() => {
+    if (!hasPermission) return;
+
+    const interval = setInterval(async () => {
+      if (cameraRef.current) {
+        try {
+          // Take frame (photo)
+          const photo = await cameraRef.current.takePhoto({
+            enableShutterSound: false,
+          });
+
+          // 🔴 VERY IMPORTANT — convert to file URI
+          const imagePath = `file://${photo.path}`;
+
+          // Detect faces
+          const faces = await FaceDetection.detect(imagePath);
+
+          console.log('Faces detected:', faces.length);
+
+          // Update UI
+          setFaceCount(faces.length);
+        } catch (error) {
+          console.log('Detection Error:', error);
         }
-        const imageuri = response.assets[0].uri!;
-        setImage(imageuri)
-        Facedetect(imageuri);
+      }
+    }, 1000); // detect every 1 second
 
-        })
-    }
-    const Facedetect = async (image:string)=>{
-        const count = await FaceDetection.detect(image);
-       const facecount = count.length;
-        setfaceCount(facecount);
-        if (facecount === 0) {
-            Alert.alert("No Face Detected");
-        } 
-        else if (facecount > 1) {
-                Alert.alert("Multiple Faces Detected");
-        }   
-        else {
-        Alert.alert("One Face Detected");
-    }
+    return () => clearInterval(interval);
+  }, [hasPermission]);
 
-    }
-    return(
-        <View style={styles.container}>
-            <Text style ={styles.textstyle}>Hai Athul welcome home</Text>
-            <Button title='Open camera' onPress={start_camera}/>
-        </View>
-       
-        
+  if (!device || !hasPermission) {
+    return (
+      <View style={styles.loading}>
+        <Text>Loading Camera...</Text>
+      </View>
+    );
+  }
 
-    
-    )
-}
+  return (
+    <View style={styles.container}>
+      {/* 🔴 Camera Preview */}
+      <Camera
+        ref={cameraRef}
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive={true}
+        photo={true}
+      />
+
+      {/* 🔴 Face Count Display */}
+      <View style={styles.overlay}>
+        <Text style={styles.text}>Face Count: {faceCount}</Text>
+      </View>
+    </View>
+  );
+};
+
 export default HomePage;
 
 const styles = StyleSheet.create({
-    container :{
-        flex:1,
-        justifyContent:'center',
-        alignItems:'center',
-        backgroundColor:'white',
-    }
-    ,textstyle:{
-        fontSize:20,
-        fontWeight :'600',
-        color:'black',
-        
-    }
-})
+  container: {
+    flex: 1,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    bottom: 70,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 15,
+    borderRadius: 10,
+  },
+  text: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+});
