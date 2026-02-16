@@ -1,97 +1,174 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+Face Detection App – React Native
 
-# Getting Started
+<!-- Project Description -->
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+This project is a React Native mobile application that performs real-time face detection
+using the device camera and Google ML Kit.
 
-## Step 1: Start Metro
+The application was developed using `@react-native-community/cli` and tested on a
+physical Android device.
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+---
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+<!-- Setup Instructions -->
 
-```sh
-# Using npm
+<!-- Installed Software -->
+
+* Node.js (v22.0)
+* Java JDK 17
+* Android Studio (for SDK tools)
+* Gradle 9
+* React Native CLI
+
+-----
+
+<!-- Install Project Dependencies -->
+
+From the project root folder, run:
+
+```bash
+npm install
+```
+
+--------
+
+<!-- Install Required Libraries -->
+
+
+Run the following commands to install all required dependencies:
+
+<!-- Camera + Face Detection -->
+
+```bash
+npm install react-native-vision-camera
+npm install @react-native-ml-kit/face-detection
+npm install react-native-worklets-core
+```
+
+<!--  Navigation -->
+
+```bash
+npm install @react-navigation/native
+npm install @react-navigation/native-stack
+npm install react-native-screens
+npm install react-native-safe-area-context
+```
+
+<!-- Icons -->
+
+```bash
+npm install react-native-vector-icons
+```
+
+--------
+
+<!-- Additional Manual Configuration -->
+
+Some native configuration changes were required for camera access,
+icons support, and real-time face detection.
+
+
+<!-- Camera Permission -->
+
+Added the following line in:
+android/app/src/main/AndroidManifest.xml
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+This is required to allow the application to access the device camera
+for live face detection.
+
+-------
+
+<!-- Enable Vector Icons (Gradle Configuration) -->
+
+Added this line in:
+android/app/build.gradle
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+
+This links the Ionicons font files so icons can display correctly in the app UI.
+
+-------
+
+<!-- Enable Frame Processors for Vision Camera -->
+
+android/gradle.properties
+
+VisionCamera_enableFrameProcessors=true
+
+This enables Vision Camera’s frame processor feature, which is required
+for running ML Kit face detection in real time.
+
+Without this setting, face detection would not work.
+
+--------
+
+
+
+<!-- Start Metro Server -->
+
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
+--------
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+<!-- Run Application on Android Phone -->
 
-### Android
+Connect device with USB debugging enabled and run:
 
-```sh
-# Using npm
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+The app will install directly on the connected device.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+> Note: Android Emulator was not used due to compatibility issues.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+----------
 
-```sh
-bundle install
-```
 
-Then, and every time you update your native dependencies, run:
+<!-- Libraries Used -->
+Library                                     Purpose                                 
+react-native-vision-camera                  Access device camera and stream frames 
+@react-native-ml-kit/face-detection         Detect faces using on-device ML         
+react-native-worklets-core                  Required for real-time frame processing 
 
-```sh
-bundle exec pod install
-```
+---------
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+<!-- Assumptions Made -->
 
-```sh
-# Using npm
-npm run ios
+* Application is developed and tested only for Android devices.
+* A physical Android phone is used instead of emulator.
+* iOS build requires macOS + Xcode (not available).
+* Internet connection is not required (offline ML processing).
 
-# OR using Yarn
-yarn ios
-```
+----------
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+ <!-- Short Screen Recording -->
 
-## Step 3: Modify your app
+A short demo video is included showing:
 
-Now that you have successfully run the app, let's make changes!
+* App launch
+* Camera opening
+* Face detection working in real time
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+------------
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
 
-## Congratulations! :tada:
+<!-- File Location: -->
 
-You've successfully run and modified your React Native App. :partying_face:
+/demo/screen-recording.mp4
 
-### Now what?
+----------
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+<!-- Conclusion -->
 
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This project demonstrates integration of React Native with device camera and
+Google ML Kit to perform real-time face detection on a mobile device.
