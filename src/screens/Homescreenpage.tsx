@@ -3,7 +3,7 @@ import { View,Text,StyleSheet,TouchableOpacity  } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../../App'; // adjust path if needed
+import { RootStackParamList } from '../../App';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,

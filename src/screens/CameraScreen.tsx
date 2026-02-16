@@ -1,11 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import {View,Text,StyleSheet,TouchableOpacity,Image} from 'react-native';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import FaceDetection from '@react-native-ml-kit/face-detection';
 

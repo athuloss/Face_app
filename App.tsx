@@ -14,8 +14,8 @@ export default function App(){
 return(
    <NavigationContainer>
     <Stack.Navigator>
-        <Stack.Screen name="Home" component={Homescreenpage}/>
-        <Stack.Screen name="camera" component={Camera_screen}/>
+        <Stack.Screen name="Home" component={Homescreenpage} options={{headerShown:false}}/>
+        <Stack.Screen name="camera" component={Camera_screen} options={{headerShown:false}}/>
     </Stack.Navigator>
    </NavigationContainer>     
 )
