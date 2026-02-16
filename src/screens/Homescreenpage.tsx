@@ -4,6 +4,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../App';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -13,7 +15,7 @@ export default function Homescreenpage(){
 const navigation = useNavigation<HomeScreenNavigationProp>();
 
     return(
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.menuicon}>
                     <Ionicons name='menu' size={25} color='black'/>
@@ -42,7 +44,7 @@ const navigation = useNavigation<HomeScreenNavigationProp>();
   </View>
 </TouchableOpacity>
 
-        </View>
+        </SafeAreaView>
     )
 }
 const styles = StyleSheet.create({

@@ -1,54 +1,48 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View,Text,StyleSheet,TouchableOpacity,Image} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import FaceDetection from '@react-native-ml-kit/face-detection';
 
-export default function camera_page() {
+export default function CameraScreen() {
   const device = useCameraDevice('front');
   const cameraRef = useRef<Camera>(null);
 
-  const [hasPermission, setHasPermission] = useState(false);
+  const [permission, setPermission] = useState(false);
   const [faceCount, setFaceCount] = useState(0);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [frozen, setFrozen] = useState(false);
+  const [time, setTime] = useState('');
 
-  // NEW STATES
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [isFrozen, setIsFrozen] = useState(false);
-  const [captureTime, setCaptureTime] = useState('');
-
-  // 🔴 Ask Camera Permission
   useEffect(() => {
     (async () => {
       const status = await Camera.requestCameraPermission();
-      setHasPermission(status === 'granted');
+      setPermission(status === 'granted');
     })();
   }, []);
 
-  // 🔴 Live Detection Loop (Stops when frozen)
   useEffect(() => {
-    if (!hasPermission || isFrozen) return;
+    if (!permission || frozen) return;
 
-    const interval = setInterval(async () => {
+    const timer = setInterval(async () => {
       if (cameraRef.current) {
         try {
           const photo = await cameraRef.current.takePhoto({
             enableShutterSound: false,
           });
 
-          const imagePath = `file://${photo.path}`;
-
-          const faces = await FaceDetection.detect(imagePath);
+          const path = `file://${photo.path}`;
+          const faces = await FaceDetection.detect(path);
           setFaceCount(faces.length);
-        } catch (error) {
-          console.log('Detection Error:', error);
+        } catch (e) {
+          console.log(e);
         }
       }
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [hasPermission, isFrozen]);
+    return () => clearInterval(timer);
+  }, [permission, frozen]);
 
-  // 🔴 Capture Button Logic
-  const handleCapture = async () => {
+  const capturePhoto = async () => {
     if (!cameraRef.current) return;
 
     try {
@@ -56,37 +50,33 @@ export default function camera_page() {
         enableShutterSound: true,
       });
 
-      const imagePath = `file://${photo.path}`;
-
-      setCapturedImage(imagePath);
-      setIsFrozen(true);
+      const path = `file://${photo.path}`;
+      setPhotoUri(path);
+      setFrozen(true);
 
       const now = new Date();
-      setCaptureTime(now.toLocaleString());
-    } catch (err) {
-      console.log('Capture error:', err);
+      setTime(now.toLocaleString());
+    } catch (e) {
+      console.log(e);
     }
   };
 
-  // 🔴 Retake (Back to Live Camera)
-  const handleRetake = () => {
-    setIsFrozen(false);
-    setCapturedImage(null);
+  const retakePhoto = () => {
+    setFrozen(false);
+    setPhotoUri(null);
   };
 
-  if (!device || !hasPermission) {
+  if (!device || !permission) {
     return (
       <View style={styles.loading}>
-        <Text>Loading Camera...</Text>
+        <Text>Opening Camera...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-
-      {/* 🔴 Show Camera OR Frozen Image */}
-      {!isFrozen ? (
+      {!frozen ? (
         <Camera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
@@ -96,43 +86,38 @@ export default function camera_page() {
         />
       ) : (
         <Image
-          source={{uri: capturedImage!}}
+          source={{uri: photoUri!}}
           style={StyleSheet.absoluteFill}
           resizeMode="cover"
         />
       )}
 
-      {/* 🔴 Face Count Overlay */}
-      {!isFrozen && (
-        <View style={styles.overlay}>
-          <Text style={styles.text}>Face Count: {faceCount}</Text>
+      {!frozen && (
+        <View style={styles.countBox}>
+          <Text style={styles.countText}>Faces: {faceCount}</Text>
         </View>
       )}
 
-      {/* 🔴 Capture Button */}
-      {!isFrozen && (
-        <TouchableOpacity style={styles.captureBtn} onPress={handleCapture}>
-          <Text style={styles.btnText}>CAPTURE</Text>
+      {!frozen && (
+        <TouchableOpacity style={styles.captureBtn} onPress={capturePhoto}>
+          <Text style={styles.btnText}>Capture</Text>
         </TouchableOpacity>
       )}
 
-      {/* 🔴 After Capture Show Info */}
-      {isFrozen && (
-        <View style={styles.infoBox}>
-          <Text style={styles.text}>Captured At:</Text>
-          <Text style={styles.text}>{captureTime}</Text>
-          <Text style={styles.text}>Faces Detected: {faceCount}</Text>
+      {frozen && (
+        <View style={styles.resultCard}>
+          <Text style={styles.resultText}>Captured At</Text>
+          <Text style={styles.resultText}>{time}</Text>
+          <Text style={styles.resultText}>Faces Detected: {faceCount}</Text>
 
-          <TouchableOpacity style={styles.retakeBtn} onPress={handleRetake}>
-            <Text style={styles.btnText}>RETAKE</Text>
+          <TouchableOpacity style={styles.retakeBtn} onPress={retakePhoto}>
+            <Text style={styles.retakeText}>Retake</Text>
           </TouchableOpacity>
         </View>
       )}
-
     </View>
   );
-};
-
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -141,56 +126,68 @@ const styles = StyleSheet.create({
 
   loading: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  overlay: {
+  countBox: {
     position: 'absolute',
     bottom: 120,
     alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+
+  countText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
   },
 
   captureBtn: {
     position: 'absolute',
     bottom: 40,
     alignSelf: 'center',
-    backgroundColor: '#1e90ff',
-    paddingVertical: 15,
+    backgroundColor: '#3b82f6',
     paddingHorizontal: 40,
-    borderRadius: 50,
-  },
-
-  infoBox: {
-    position: 'absolute',
-    bottom: 60,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    padding: 20,
-    borderRadius: 15,
-    alignItems: 'center',
-  },
-
-  retakeBtn: {
-    marginTop: 15,
-    backgroundColor: '#ff4444',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-  },
-
-  text: {
-    color: 'white',
-    fontSize: 18,
-    marginBottom: 5,
+    paddingVertical: 15,
+    borderRadius: 40,
   },
 
   btnText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+
+  resultCard: {
+    position: 'absolute',
+    bottom: 60,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    padding: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  resultText: {
+    color: 'white',
+    fontSize: 16,
+  },
+
+  retakeBtn: {
+    marginTop: 10,
+    backgroundColor: 'white',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    borderRadius: 25,
+  },
+
+  retakeText: {
+    color: 'black',
+    fontWeight: '600',
   },
 });

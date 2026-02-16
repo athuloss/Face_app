@@ -164,7 +164,7 @@ A short demo video is included showing:
 
 <!-- File Location: -->
 
-/demo/screen-recording.mp4
+<video controls src="demovideo.mp4" title="C:\Face_app\demovideo.mp4"></video>
 
 ----------
 
