@@ -69,7 +69,7 @@ export default function CameraScreen() {
   if (!device || !permission) {
     return (
       <View style={styles.loading}>
-        <Text>Opening Camera...</Text>
+        <Text>Opening Camera</Text>
       </View>
     );
   }
