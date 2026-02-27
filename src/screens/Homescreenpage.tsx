@@ -23,9 +23,11 @@ const navigation = useNavigation<HomeScreenNavigationProp>();
                 <View>
                     <Text style={styles.faceapptext}>FaceApp</Text>
                 </View>
-                <View style={styles.menuicon}>
-                    <Ionicons name='notifications-outline' size={20} color='black'/>
-                </View>
+                <TouchableOpacity onPress={()=>navigation.navigate('Signup')}>
+                    <View style={styles.menuicon}>
+                        <Ionicons name='person-circle-outline' size={20} color='black'/>
+                    </View>
+                </TouchableOpacity>
             </View>
             <View style={styles.floating_label}>
                 <Text style={styles.floating_text}>Ready to Capture</Text>
