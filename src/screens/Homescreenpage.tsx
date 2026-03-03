@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../App';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import * as Keychain from 'react-native-keychain';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -13,7 +13,18 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
 >;
 export default function Homescreenpage(){
 const navigation = useNavigation<HomeScreenNavigationProp>();
+const [username, setUsername] = React.useState('');
 
+React.useEffect(() => {
+  const loadUser = async () => {
+    const credentials = await Keychain.getGenericPassword();
+    if (credentials) {
+      setUsername(credentials.password);
+    }
+  };
+
+  loadUser();
+}, []);
     return(
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -30,7 +41,7 @@ const navigation = useNavigation<HomeScreenNavigationProp>();
                 </TouchableOpacity>
             </View>
             <View style={styles.floating_label}>
-                <Text style={styles.floating_text}>Ready to Capture</Text>
+                <Text style={styles.floating_text}> {username} Ready to Capture</Text>
             </View>
             <View style={styles.mainheading}> 
                 <Text style={styles.capture_text}>Capture the{"\n"}<Text style={styles.capture_text_sub}>Movement</Text></Text>
