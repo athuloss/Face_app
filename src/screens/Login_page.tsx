@@ -4,7 +4,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../App';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { saveToken } from '../auth';
+import * as Keychain from 'react-native-keychain';
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Login'
@@ -14,7 +15,9 @@ export default function Login() {
   const [name, setName] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const handleLogin = async() => {
+
+
+const handleLogin = async() => {
     if(!name || !password){
         Alert.alert('Error', 'Please fill in all fields');
         return;
@@ -33,7 +36,7 @@ export default function Login() {
     const data =await response.json();
     Alert.alert(data.msg)
     if (data.msg === "Login successful") {
-    navigation.navigate("Home");
+ await Keychain.setGenericPassword('user', name);    navigation.navigate("Home");
 }
   };
 
